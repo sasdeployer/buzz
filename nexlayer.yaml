@@ -1,24 +1,114 @@
 application:
-  name: neat-peak-buzz
+  name: buzz
   pods:
-    - name: app
-      image: "registry.nexlayer.io/user_01kdnssb5ktgqr1mawtnz48s00/buzz:1a02234cc74"
+    - name: relay
+      image: "registry.nexlayer.io/user_01kdnssb5ktgqr1mawtnz48s00/buzz:a0229e7-fix6"
       path: /
       servicePorts:
         - 3000
       vars:
+        BUZZ_BIND_ADDR: "0.0.0.0:3000"
+        RELAY_URL: "ws://relay.pod:3000"
         DATABASE_URL: "postgresql://app:${POSTGRES_PASSWORD}@postgres.pod:5432/app"
-        POSTGRES_DB: "app"
-        POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-        POSTGRES_USER: "app"
         REDIS_URL: "redis://redis.pod:6379"
+        TYPESENSE_URL: "http://search.pod:8108"
+        TYPESENSE_API_KEY: "${TYPESENSE_API_KEY}"
+        BUZZ_S3_ENDPOINT: "http://minio.pod:9000"
+        BUZZ_S3_ACCESS_KEY: "${BUZZ_S3_ACCESS_KEY}"
+        BUZZ_S3_SECRET_KEY: "${BUZZ_S3_SECRET_KEY}"
+        BUZZ_S3_BUCKET: "buzz-media"
+        BUZZ_S3_REGION: "us-east-1"
+        BUZZ_WEB_DIR: "/web/dist"
+        RUST_LOG: "buzz_relay=debug,buzz_datastore=info,buzz_db=debug,buzz_auth=debug,buzz_pubsub=debug,tower_http=debug"
     - name: postgres
-      image: mirror.gcr.io/library/postgres:16-alpine
+      image: mirror.gcr.io/library/postgres:17-alpine
       servicePorts:
         - 5432
-      vars: {}
+      vars:
+        POSTGRES_USER: "app"
+        POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+        POSTGRES_DB: "app"
+      volumes:
+        - name: buzz-postgres-data
+          size: 10Gi
+          mountPath: /var/lib/postgresql
     - name: redis
       image: mirror.gcr.io/library/redis:7-alpine
       servicePorts:
         - 6379
       vars: {}
+    - name: search
+      image: mirror.gcr.io/library/typesense:latest
+      servicePorts:
+        - 8108
+      vars:
+        TYPESENSE_API_KEY: "${TYPESENSE_API_KEY}"
+        TYPESENSE_DATA_DIR: /data
+      volumes:
+        - name: buzz-typesense-data
+          size: 5Gi
+          mountPath: /data
+    - name: minio
+      image: mirror.gcr.io/library/minio:latest
+      command: "server /data --console-address \":9001\""
+      servicePorts:
+        - 9000
+      vars:
+        MINIO_ROOT_USER: "${MINIO_ROOT_USER}"
+        MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD}"
+      volumes:
+        - name: buzz-minio-data
+          size: 10Gi
+          mountPath: /data
+    - name: keycloak
+      image: quay.io/keycloak/keycloak:26.0
+      command: "start-dev --http-port=8080"
+      servicePorts:
+        - 8080
+      vars:
+        KC_DB: dev-mem
+        KEYCLOAK_ADMIN: admin
+        KEYCLOAK_ADMIN_PASSWORD: "${KEYCLOAK_ADMIN_PASSWORD}"
+    - name: push-gateway
+      image: ghcr.io/block/buzz-push-gateway:latest
+      servicePorts:
+        - 8080
+      vars:
+        DATABASE_URL: "postgresql://app:${POSTGRES_PASSWORD}@postgres.pod:5432/app"
+        REDIS_URL: "redis://redis.pod:6379"
+        RELAY_URL: "ws://relay.pod:3000"
+    - name: admin
+      image: ghcr.io/block/buzz-admin:latest
+      path: /admin
+      servicePorts:
+        - 8081
+      vars:
+        NODE_ENV: production
+    - name: agent
+      image: ghcr.io/block/buzz-agent:latest
+      servicePorts:
+        - 8082
+      vars:
+        DATABASE_URL: "postgresql://app:${POSTGRES_PASSWORD}@postgres.pod:5432/app"
+        REDIS_URL: "redis://redis.pod:6379"
+        RELAY_URL: "ws://relay.pod:3000"
+    - name: workflow
+      image: ghcr.io/block/buzz-workflow:latest
+      servicePorts:
+        - 8083
+      vars:
+        DATABASE_URL: "postgresql://app:${POSTGRES_PASSWORD}@postgres.pod:5432/app"
+        REDIS_URL: "redis://redis.pod:6379"
+        RELAY_URL: "ws://relay.pod:3000"
+    - name: media
+      image: ghcr.io/block/buzz-media:latest
+      servicePorts:
+        - 8084
+      vars:
+        DATABASE_URL: "postgresql://app:${POSTGRES_PASSWORD}@postgres.pod:5432/app"
+        REDIS_URL: "redis://redis.pod:6379"
+        BUZZ_S3_ENDPOINT: "http://minio.pod:9000"
+        BUZZ_S3_ACCESS_KEY: "${BUZZ_S3_ACCESS_KEY}"
+        BUZZ_S3_SECRET_KEY: "${BUZZ_S3_SECRET_KEY}"
+        BUZZ_S3_BUCKET: "buzz-media"
+        BUZZ_S3_REGION: "us-east-1"
