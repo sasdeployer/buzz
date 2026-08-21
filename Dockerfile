@@ -28,7 +28,26 @@ ARG EXTRA_CA_CERTS=
 ARG NPM_REGISTRY=
 
 # ─── Stage 1: cargo-chef base ───────────────────────────────────────────────
-FROM rust:${RUST_VERSION}-${DEBIAN_VERSION} AS chef
+FROM mirror.gcr.io/library/rust:${RUST_VERSION}-${DEBIAN_VERSION} AS chef
+# build-time env seeded from .env.example
+ENV BUZZ_BIND_ADDR=0.0.0.0:3000
+ENV BUZZ_S3_ACCESS_KEY=buzz_dev
+ENV BUZZ_S3_ADDRESSING_STYLE=path
+ENV BUZZ_S3_BUCKET=buzz-media
+ENV BUZZ_S3_ENDPOINT=http://localhost:9000
+ENV BUZZ_S3_REGION=us-east-1
+ENV BUZZ_S3_SECRET_KEY=buzz_dev_secret
+ENV DATABASE_URL=postgres://buzz:buzz_dev@localhost:5432/buzz
+ENV PGDATABASE=buzz
+ENV PGHOST=localhost
+ENV PGPASSWORD=buzz_dev
+ENV PGPORT=5432
+ENV PGUSER=buzz
+ENV REDIS_URL=redis://localhost:6379
+ENV RELAY_URL=ws://localhost:3000
+ENV RUST_LOG=buzz_relay=debug,buzz_datastore=info,buzz_db=debug,buzz_auth=debug,buzz_pubsub=debug,tower_http=debug
+ENV TYPESENSE_API_KEY=buzz_dev_key
+ENV TYPESENSE_URL=http://localhost:8108
 # Trust an optional corporate-proxy CA before any network fetch (no-op if unset).
 ARG EXTRA_CA_CERTS
 COPY --chmod=0644 ${EXTRA_CA_CERTS:-Dockerfile} /tmp/extra-ca/src
@@ -81,7 +100,7 @@ RUN strip target/release/buzz-relay \
 # ─── Stage 4: web bundle (pnpm + vite) ──────────────────────────────────────
 # Independent of the Rust layers so a CSS change doesn't bust Rust cache and
 # vice versa.
-FROM node:${NODE_VERSION}-${DEBIAN_VERSION}-slim AS web-builder
+FROM mirror.gcr.io/library/node:${NODE_VERSION}-${DEBIAN_VERSION}-slim AS web-builder
 WORKDIR /build
 # Trust an optional corporate-proxy CA so corepack + pnpm can fetch over an
 # intercepting TLS gateway (no-op if EXTRA_CA_CERTS is unset).
@@ -119,7 +138,7 @@ COPY admin-web/ admin-web/
 RUN pnpm -C web build && pnpm -C admin-web build
 
 # ─── Stage 5: shared runtime ────────────────────────────────────────────────
-FROM debian:${DEBIAN_VERSION}-slim AS runtime-base
+FROM mirror.gcr.io/library/debian:${DEBIAN_VERSION}-slim AS runtime-base
 
 # OCI annotations: required for GHCR to auto-link the image to this repo and
 # inherit its visibility. org.opencontainers.image.source is the load-bearing
