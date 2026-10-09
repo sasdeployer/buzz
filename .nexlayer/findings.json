@@ -1,0 +1,463 @@
+{
+  "schema": "nexlayer.plan.findings/2",
+  "app": "buzz",
+  "repo": "https://github.com/sasdeployer/buzz",
+  "branch": "main",
+  "analyzedAt": "2026-10-09T05:08:45.258Z",
+  "registered": true,
+  "techStack": [
+    {
+      "name": "Rust",
+      "kind": "language",
+      "version": "1.88 toolchain (Dockerfile builds with 1.95)",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "Cargo.toml",
+          "rust-toolchain.toml",
+          "Dockerfile"
+        ]
+      }
+    },
+    {
+      "name": "Axum",
+      "kind": "framework",
+      "version": "0.8",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "Cargo.toml"
+        ]
+      }
+    },
+    {
+      "name": "Tokio",
+      "kind": "framework",
+      "version": "1",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "Cargo.toml"
+        ]
+      }
+    },
+    {
+      "name": "PostgreSQL",
+      "kind": "database",
+      "version": "17",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "docker-compose.yml",
+          ".env.example"
+        ]
+      }
+    },
+    {
+      "name": "Redis",
+      "kind": "database",
+      "version": "7",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "docker-compose.yml",
+          ".env.example"
+        ]
+      }
+    },
+    {
+      "name": "Typesense",
+      "kind": "database",
+      "version": "unpinned",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          ".env.example",
+          "docker-compose.yml"
+        ]
+      }
+    },
+    {
+      "name": "Keycloak",
+      "kind": "infra",
+      "version": "26.0 (quay.io/keycloak/keycloak)",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "docker-compose.yml"
+        ]
+      }
+    },
+    {
+      "name": "Adminer",
+      "kind": "tool",
+      "version": "latest",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "docker-compose.yml"
+        ]
+      }
+    },
+    {
+      "name": "pnpm workspace",
+      "kind": "build",
+      "version": "11.4.0",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "package.json",
+          "pnpm-workspace.yaml"
+        ]
+      }
+    },
+    {
+      "name": "Vite",
+      "kind": "framework",
+      "version": "unpinned (buzz-web static bundle)",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "Dockerfile"
+        ]
+      }
+    },
+    {
+      "name": "SQLx",
+      "kind": "infra",
+      "version": "0.9",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "Cargo.toml"
+        ]
+      }
+    },
+    {
+      "name": "Git",
+      "kind": "tool",
+      "version": "system dependency of relay image",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "Dockerfile"
+        ]
+      }
+    },
+    {
+      "name": "Prometheus",
+      "kind": "infra",
+      "version": "unpinned",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "prometheus.yml",
+          "root listing"
+        ]
+      }
+    }
+  ],
+  "services": [
+    {
+      "name": "relay",
+      "image": "registry.nexlayer.io/YOUR_USER_ID/buzz-relay:planned",
+      "role": null,
+      "port": 3000,
+      "reachable": true,
+      "reachableBasis": {
+        "kind": "read",
+        "sources": [
+          ".nexlayer/drafts/nexlayer.yaml"
+        ]
+      },
+      "envNames": [
+        "BUZZ_BIND_ADDR",
+        "BUZZ_HEALTH_PORT",
+        "BUZZ_METRICS_PORT",
+        "DATABASE_URL",
+        "REDIS_URL",
+        "TYPESENSE_URL",
+        "TYPESENSE_API_KEY",
+        "BUZZ_S3_ENDPOINT",
+        "BUZZ_S3_ADDRESSING_STYLE",
+        "BUZZ_S3_ACCESS_KEY",
+        "BUZZ_S3_SECRET_KEY",
+        "BUZZ_S3_BUCKET",
+        "BUZZ_GIT_REPO_PATH",
+        "BUZZ_AUTO_MIGRATE",
+        "BUZZ_GIT_CONFORMANCE_PROBE",
+        "BUZZ_REQUIRE_AUTH_TOKEN",
+        "BUZZ_REQUIRE_RELAY_MEMBERSHIP",
+        "BUZZ_ALLOW_NIP_OA_AUTH",
+        "RELAY_OWNER_PUBKEY",
+        "BUZZ_RELAY_PRIVATE_KEY",
+        "BUZZ_GIT_HOOK_HMAC_SECRET",
+        "RUST_LOG"
+      ]
+    },
+    {
+      "name": "postgres",
+      "image": "mirror.gcr.io/library/postgres:17-alpine",
+      "role": null,
+      "port": 5432,
+      "reachable": false,
+      "reachableBasis": {
+        "kind": "read",
+        "sources": [
+          ".nexlayer/drafts/nexlayer.yaml"
+        ]
+      },
+      "envNames": [
+        "POSTGRES_DB",
+        "POSTGRES_USER",
+        "POSTGRES_PASSWORD"
+      ]
+    },
+    {
+      "name": "redis",
+      "image": "mirror.gcr.io/library/redis:7-alpine",
+      "role": null,
+      "port": 6379,
+      "reachable": false,
+      "reachableBasis": {
+        "kind": "read",
+        "sources": [
+          ".nexlayer/drafts/nexlayer.yaml"
+        ]
+      },
+      "envNames": []
+    },
+    {
+      "name": "typesense",
+      "image": "mirror.gcr.io/typesense/typesense:28.0",
+      "role": null,
+      "port": 8108,
+      "reachable": false,
+      "reachableBasis": {
+        "kind": "read",
+        "sources": [
+          ".nexlayer/drafts/nexlayer.yaml"
+        ]
+      },
+      "envNames": [
+        "TYPESENSE_API_KEY",
+        "TYPESENSE_DATA_DIR"
+      ]
+    },
+    {
+      "name": "minio",
+      "image": "mirror.gcr.io/minio/minio:latest",
+      "role": null,
+      "port": 9000,
+      "reachable": false,
+      "reachableBasis": {
+        "kind": "read",
+        "sources": [
+          ".nexlayer/drafts/nexlayer.yaml"
+        ]
+      },
+      "envNames": [
+        "MINIO_ROOT_USER",
+        "MINIO_ROOT_PASSWORD"
+      ]
+    }
+  ],
+  "secrets": [
+    {
+      "name": "TYPESENSE_API_KEY",
+      "required": true,
+      "buildTime": false,
+      "status": "needed_from_human"
+    },
+    {
+      "name": "KEYCLOAK_ADMIN_PASSWORD",
+      "required": true,
+      "buildTime": false,
+      "status": "needed_from_human"
+    },
+    {
+      "name": "BUZZ_S3_ACCESS_KEY",
+      "required": false,
+      "buildTime": false,
+      "status": "optional",
+      "optionalReason": "Found in the code; not needed to start the app."
+    },
+    {
+      "name": "BUZZ_S3_SECRET_KEY",
+      "required": false,
+      "buildTime": false,
+      "status": "optional",
+      "optionalReason": "Found in the code; not needed to start the app."
+    },
+    {
+      "name": "PGPASSWORD",
+      "required": false,
+      "buildTime": false,
+      "status": "optional",
+      "optionalReason": "Found in the code; not needed to start the app."
+    }
+  ],
+  "secretsSummary": {
+    "total": 5,
+    "supplied": 0,
+    "neededFromHuman": 2
+  },
+  "codeGaps": [],
+  "buildConfig": {},
+  "deployNotes": [
+    "One service per pod: relay, postgres, redis, typesense, keycloak, adminer, and the push gateway each run in their own pod.",
+    "Inter-pod communication uses <podName>.pod:<port>: the relay reaches Postgres at postgres.pod:5432, Redis at redis.pod:6379, and Typesense at typesense.pod:8108 — never localhost or bare hostnames.",
+    "Postgres is a separate pod from the relay (Rule 4) and persists via PGDATA volume; run migrations (migrations/ dir) against postgres.pod:5432 before/onsstartup.",
+    "Postgres, Redis, and Adminer images were rewritten from Docker Hub to mirror.gcr.io/library/*; Keycloak stays on quay.io (not Docker Hub); Typesense is mirrored via mirror.gcr.io/typesense/typesense.",
+    "Keycloak runs in start-dev / dev-mem mode per docker-compose.yml; production should switch KC_DB to the postgres pod and set real admin credentials.",
+    "The relay image (ghcr.io/block/buzz) bundles the buzz-relay Rust binary plus the static buzz-web frontend and requires git in the runtime image for repository operations."
+  ],
+  "intent": {
+    "stage": "experiment"
+  },
+  "fromManifest": false,
+  "live": null,
+  "legacyDocs": [],
+  "drafts": {
+    "manifest": true,
+    "by": "agent",
+    "dockerfiles": [],
+    "noTemplate": []
+  },
+  "productionPlan": {
+    "summary": "Buzz is a Rust Axum Nostr relay that serves a Vite web bundle and connects to Postgres 17, Redis 7, Typesense search, and S3-compatible media storage (MinIO). On Nexlayer it runs as five pods: the relay (built from the repo Dockerfile) fronting traffic, with Postgres, Redis, Typesense, and MinIO as companion services, each on its own persistent volume. The thing that matters most is keeping the relay's Postgres, Redis, S3, and Typesense credentials and addresses consistent across pods so the relay can migrate, store, and search on first boot.",
+    "decisions": [
+      {
+        "topic": "services",
+        "decision": "Convert docker-compose.yml / deploy/compose/compose.yml into five pods: relay, postgres, redis, typesense, and minio; drop Adminer, Prometheus, Keycloak, and Caddy.",
+        "why": "Adminer, Prometheus, and the Caddy reverse proxy are dev/ops tooling Nexlayer replaces or that isn't part of the app, and Keycloak runs only in start-dev/dev-mem mode with admin/admin credentials, which is not production-usable; the relay's own auth is Nostr-based (buzz-auth NIP-42/98).",
+        "evidence": [
+          "docker-compose.yml",
+          "deploy/compose/compose.yml",
+          "deploy/compose/compose.dev.yml",
+          "deploy/compose/compose.caddy.yml",
+          "crates/buzz-auth/Cargo.toml"
+        ]
+      },
+      {
+        "topic": "database",
+        "decision": "Postgres 17 in its own pod (mirror.gcr.io/library/postgres:17-alpine) with a volume, matching the version pinned in compose.",
+        "why": "The compose files pin postgres:17-alpine and the relay stores all events there, so the data must survive restarts.",
+        "evidence": [
+          "docker-compose.yml",
+          "deploy/compose/compose.yml",
+          "crates/buzz-db/Cargo.toml"
+        ]
+      },
+      {
+        "topic": "database",
+        "decision": "Run SQLx migrations in the relay's startup via BUZZ_AUTO_MIGRATE=true rather than a one-shot migration pod.",
+        "why": "deploy/compose/compose.yml already exposes BUZZ_AUTO_MIGRATE for exactly this, and the platform rejects pods that exit.",
+        "evidence": [
+          "deploy/compose/compose.yml",
+          "migrations"
+        ]
+      },
+      {
+        "topic": "storage",
+        "decision": "Keep MinIO as the media backend (mirror.gcr.io/minio/minio) with a volume, wired to the relay via path-style S3 env vars; its root credentials use the same keys the relay reads.",
+        "why": "deploy/compose/compose.yml sets BUZZ_S3_ENDPOINT/BUZZ_S3_BUCKET/BUZZ_S3_ACCESS_KEY/BUZZ_S3_SECRET_KEY and mounts nothing persistent in the relay for media, so object storage holds the uploads.",
+        "evidence": [
+          "deploy/compose/compose.yml",
+          "deploy/compose/.env.example",
+          "crates/buzz-media/Cargo.toml"
+        ]
+      },
+      {
+        "topic": "storage",
+        "decision": "Give the relay a persistent volume at /data/git for BUZZ_GIT_REPO_PATH.",
+        "why": "The relay shells out to git for repo hydrate/receive-pack/upload-pack and stores repo data on disk at /data/git in the production compose.",
+        "evidence": [
+          "deploy/compose/compose.yml",
+          "Dockerfile",
+          "crates/buzz-relay/src/api/git"
+        ]
+      },
+      {
+        "topic": "database",
+        "decision": "Run Typesense in its own pod with a volume, referenced by the relay at http://typesense.pod:8108.",
+        "why": "The relay depends on Typesense for search (.env.example TYPESENSE_URL/TYPESENSE_API_KEY) and Typesense keeps its index on local disk.",
+        "evidence": [
+          ".env.example",
+          "docker-compose.yml",
+          "crates/buzz-search/Cargo.toml"
+        ]
+      },
+      {
+        "topic": "keys",
+        "decision": "Reference all secrets by name only: ${POSTGRES_PASSWORD}, ${REDIS_PASSWORD}, ${TYPESENSE_API_KEY}, ${BUZZ_S3_ACCESS_KEY}, ${BUZZ_S3_SECRET_KEY}, ${RELAY_OWNER_PUBKEY}, ${BUZZ_RELAY_PRIVATE_KEY}, ${BUZZ_GIT_HOOK_HMAC_SECRET}, ${BUZZ_REQUIRE_AUTH_TOKEN}; MinIO's root user/password use the same ${BUZZ_S3_*} names so the relay and storage agree.",
+        "why": "deploy/compose/.env.example marks these as CHANGE_ME stable secrets the operator must provision, and connection strings must never contain literals.",
+        "evidence": [
+          "deploy/compose/.env.example",
+          "deploy/compose/compose.yml"
+        ]
+      },
+      {
+        "topic": "health",
+        "decision": "Expose the relay on port 3000 (BUZZ_BIND_ADDR 0.0.0.0:3000) with its health (8080) and metrics (9102) ports also declared.",
+        "why": "deploy/compose/compose.yml sets those exact ports and healthchecks /_readiness on 8080.",
+        "evidence": [
+          "deploy/compose/compose.yml",
+          "crates/buzz-relay/src/metrics.rs"
+        ]
+      }
+    ],
+    "fix_before_production": [
+      {
+        "title": "Handle MinIO bucket creation without the one-shot minio-init container",
+        "why": "deploy/compose/compose.yml depends on a run-to-completion minio-init (mc) service that creates the buzz-media bucket; the platform rejects one-shot pods, and without the bucket media uploads fail.",
+        "where": "deploy/compose/compose.yml",
+        "severity": "should"
+      },
+      {
+        "title": "Provision RELAY_OWNER_PUBKEY and BUZZ_RELAY_PRIVATE_KEY before first deploy",
+        "why": "deploy/compose/.env.example marks the owner pubkey and stable relay private key as required for closed-relay mode; deploying without them leaves auth/membership enforcement unconfigured.",
+        "where": "deploy/compose/.env.example",
+        "severity": "should"
+      }
+    ],
+    "verify_after_deploy": [
+      "GET / on the app URL returns 200 and serves the buzz-web bundle",
+      "GET /_readiness via the relay health port (8080) through internal networking returns 200 after migrations complete",
+      "A WebSocket connection to the app URL (wss) completes the Nostr handshake (REQ/EVENT round-trip)",
+      "Upload a file through the relay media API and confirm the object appears in MinIO (bucket buzz-media)",
+      "Confirm Typesense answers search queries from the relay (channel/message search returns results after events are written)"
+    ],
+    "open_questions": [
+      "Is Keycloak actually required for any production auth flow, or is Nostr-based auth (NIP-42/98) sufficient? The compose only runs it in dev-mem mode.",
+      "Should media move from the bundled MinIO to an external S3 provider at scale?"
+    ],
+    "nexlayer_yaml": "application:\n  name: buzz\n  pods:\n    - name: relay\n      image: \"registry.nexlayer.io/YOUR_USER_ID/buzz-relay:planned\"\n      path: /\n      servicePorts:\n        - 3000\n        - 8080\n        - 9102\n      volumes:\n        - mountPath: /data/git\n      vars:\n        BUZZ_BIND_ADDR: 0.0.0.0:3000\n        BUZZ_HEALTH_PORT: \"8080\"\n        BUZZ_METRICS_PORT: \"9102\"\n        DATABASE_URL: postgres://buzz:${POSTGRES_PASSWORD}@postgres.pod:5432/buzz\n        REDIS_URL: redis://:${REDIS_PASSWORD}@redis.pod:6379\n        TYPESENSE_URL: http://typesense.pod:8108\n        TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}\n        BUZZ_S3_ENDPOINT: http://minio.pod:9000\n        BUZZ_S3_ADDRESSING_STYLE: path\n        BUZZ_S3_ACCESS_KEY: ${BUZZ_S3_ACCESS_KEY}\n        BUZZ_S3_SECRET_KEY: ${BUZZ_S3_SECRET_KEY}\n        BUZZ_S3_BUCKET: buzz-media\n        BUZZ_GIT_REPO_PATH: /data/git\n        BUZZ_AUTO_MIGRATE: \"true\"\n        BUZZ_GIT_CONFORMANCE_PROBE: \"true\"\n        BUZZ_REQUIRE_AUTH_TOKEN: ${BUZZ_REQUIRE_AUTH_TOKEN}\n        BUZZ_REQUIRE_RELAY_MEMBERSHIP: \"true\"\n        BUZZ_ALLOW_NIP_OA_AUTH: \"true\"\n        RELAY_OWNER_PUBKEY: ${RELAY_OWNER_PUBKEY}\n        BUZZ_RELAY_PRIVATE_KEY: ${BUZZ_RELAY_PRIVATE_KEY}\n        BUZZ_GIT_HOOK_HMAC_SECRET: ${BUZZ_GIT_HOOK_HMAC_SECRET}\n        RUST_LOG: buzz_relay=info,buzz_db=info,buzz_auth=info,buzz_pubsub=info,tower_http=info\n    - name: postgres\n      image: mirror.gcr.io/library/postgres:17-alpine\n      servicePorts:\n        - 5432\n      volumes:\n        - mountPath: /var/lib/postgresql\n      vars:\n        POSTGRES_DB: buzz\n        POSTGRES_USER: buzz\n        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}\n    - name: redis\n      image: mirror.gcr.io/library/redis:7-alpine\n      servicePorts:\n        - 6379\n      command: redis-server --requirepass ${REDIS_PASSWORD}\n      vars: {}\n    - name: typesense\n      image: mirror.gcr.io/typesense/typesense:28.0\n      servicePorts:\n        - 8108\n      volumes:\n        - mountPath: /data\n      vars:\n        TYPESENSE_API_KEY: ${TYPESENSE_API_KEY}\n        TYPESENSE_DATA_DIR: /data\n    - name: minio\n      image: mirror.gcr.io/minio/minio:latest\n      servicePorts:\n        - 9000\n      command: server /data\n      volumes:\n        - mountPath: /data\n      vars:\n        MINIO_ROOT_USER: ${BUZZ_S3_ACCESS_KEY}\n        MINIO_ROOT_PASSWORD: ${BUZZ_S3_SECRET_KEY}\n",
+    "builds": [
+      {
+        "service": "relay",
+        "context": ".",
+        "dockerfile": "Dockerfile",
+        "exists": true,
+        "notes": ""
+      }
+    ],
+    "yaml_valid": true,
+    "model": "z-ai/glm-5.3",
+    "dropped_evidence": 0
+  },
+  "builds": [
+    {
+      "pod": "relay",
+      "image": "buzz-relay",
+      "context": ".",
+      "dockerfile": "Dockerfile",
+      "basis": {
+        "kind": "read",
+        "sources": [
+          "Dockerfile"
+        ]
+      }
+    }
+  ]
+}
