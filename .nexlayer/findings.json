@@ -3,7 +3,7 @@
   "app": "buzz",
   "repo": "https://github.com/sasdeployer/buzz",
   "branch": "main",
-  "analyzedAt": "2026-10-09T05:07:47.573Z",
+  "analyzedAt": "2026-10-09T05:08:45.258Z",
   "registered": true,
   "techStack": [
     {
@@ -312,7 +312,9 @@
     "Keycloak runs in start-dev / dev-mem mode per docker-compose.yml; production should switch KC_DB to the postgres pod and set real admin credentials.",
     "The relay image (ghcr.io/block/buzz) bundles the buzz-relay Rust binary plus the static buzz-web frontend and requires git in the runtime image for repository operations."
   ],
-  "intent": null,
+  "intent": {
+    "stage": "experiment"
+  },
   "fromManifest": false,
   "live": null,
   "legacyDocs": [],
